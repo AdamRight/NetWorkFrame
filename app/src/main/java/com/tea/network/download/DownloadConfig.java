@@ -2,6 +2,9 @@ package com.tea.network.download;
 
 /**
  * Created by jiangtea on 2020/6/6.
+ *
+ * 构建者模式
+ *
  */
 public class DownloadConfig {
     private int coreThreadSize;
@@ -46,7 +49,6 @@ public class DownloadConfig {
             this.localProgressThreadSize = localProgressThreadSize;
             return this;
         }
-
 
         public DownloadConfig builder() {
             return new DownloadConfig(this);

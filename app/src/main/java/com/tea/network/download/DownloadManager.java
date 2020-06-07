@@ -32,7 +32,7 @@ public class DownloadManager {
     public final static int MAX_THREAD = 2;
     public final static int LOCAL_PROGRESS_SIZE = 1;
 
-    private static DownloadManager sManager;
+    private static volatile DownloadManager sManager;
 
     private static ExecutorService sLocalProgressPool = Executors.newFixedThreadPool(LOCAL_PROGRESS_SIZE);
 
@@ -47,6 +47,9 @@ public class DownloadManager {
         }
     });
 
+    /**
+     * 管理队列
+     */
     private HashSet<DownloadTask> mHashSet = new HashSet<>();
 
     private List<DownloadEntity> mCache;
@@ -64,8 +67,10 @@ public class DownloadManager {
         return sManager;
     }
 
+    /**
+     * 静态内部类单例模式
+     */
     public static class Holder {
-
         private static DownloadManager sManager = new DownloadManager();
 
         public static DownloadManager getInstance() {
@@ -78,6 +83,10 @@ public class DownloadManager {
 
     }
 
+    /**
+     * 移除队列
+     * @param task
+     */
     private void finish(DownloadTask task) {
         mHashSet.remove(task);
     }
@@ -91,12 +100,13 @@ public class DownloadManager {
         mHashSet.add(task);
 
         mCache = DownloadHelper.getInstance().getAll(url);
+
         if (mCache == null || mCache.size() == 0) {
             HttpManager.getInstance().asyncRequest(url, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     finish(task);
-                    Logger.debug("nate", "onFailure ");
+                    Logger.debug("eee", "onFailure ");
                 }
 
                 @Override
@@ -114,12 +124,10 @@ public class DownloadManager {
                     }
                     processDownload(url, mLength, callback, mCache);
                     finish(task);
-
                 }
             });
 
         } else {
-            // TODO: 16/9/3 处理已经下载过的数据
             for (int i = 0; i < mCache.size(); i++) {
                 DownloadEntity entity = mCache.get(i);
                 if (i == mCache.size() - 1) {
@@ -156,7 +164,6 @@ public class DownloadManager {
 
 
     private void processDownload(String url, long length, DownloadCallback callback, List<DownloadEntity> cache) {
-        // 100   2  50  0-49  50-99
         long threadDownloadSize = length / MAX_THREAD;
         if (cache == null && cache.size() == 0) {
             mCache = new ArrayList<>();
@@ -181,6 +188,11 @@ public class DownloadManager {
     }
 
 
+    /**
+     * DownloadConfig使用构建者模式
+     *
+     * @param config
+     */
     public void init(DownloadConfig config) {
         sThreadPool = new ThreadPoolExecutor(config.getCoreThreadSize(), config.getMaxThreadSize(), 60, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
             private AtomicInteger mInteger = new AtomicInteger(1);

@@ -6,13 +6,10 @@ import com.tea.network.http.DownloadCallback;
  * Created by jiangtea on 2020/6/6.
  */
 public class DownloadTask {
-    public String getUrl() {
-        return mUrl;
-    }
 
-    public void setUrl(String mUrl) {
-        this.mUrl = mUrl;
-    }
+    private String mUrl;
+
+    private DownloadCallback mCallback;
 
     public DownloadTask(String mUrl, DownloadCallback mCallback) {
         this.mUrl = mUrl;
@@ -46,7 +43,12 @@ public class DownloadTask {
         this.mCallback = mCallback;
     }
 
-    private String mUrl;
+    public String getUrl() {
+        return mUrl;
+    }
 
-    private DownloadCallback mCallback;
+    public void setUrl(String mUrl) {
+        this.mUrl = mUrl;
+    }
+
 }

@@ -10,8 +10,6 @@ import com.tea.network.http.HttpManager;
 import com.tea.network.utils.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
@@ -49,7 +47,9 @@ public class DownloadRunnable implements Runnable{
 
     @Override
     public void run() {
-
+        /**
+         * 线程优化
+         */
         android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         Response response = HttpManager.getInstance().syncRequestByRange(mUrl, mStart, mEnd);
         if (response == null && mCallback != null) {
@@ -70,15 +70,13 @@ public class DownloadRunnable implements Runnable{
                 randomAccessFile.write(buffer, 0, len);
                 progress += len;
                 mEntity.setProgress_position(progress);
-                Logger.debug("nate", "progress  ----->" + progress);
+                Logger.debug("eee", "progress  ----->" + progress);
             }
 
             mEntity.setProgress_position(mEntity.getProgress_position() + finshProgress);
             randomAccessFile.close();
             mCallback.success(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             DownloadHelper.getInstance().insert(mEntity);
